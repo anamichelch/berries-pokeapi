@@ -1,5 +1,4 @@
-from app import get_berries_names, get_growth_time, get_all_growth_times, get_frequency_growth_time,get_berries
-import httpx
+from app import get_berries_names, get_growth_time, get_all_growth_times, get_frequency_growth_time
 
 
 def test_get_berries_names():
