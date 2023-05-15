@@ -1,16 +1,17 @@
-from flask import Flask
+from flask import Flask, make_response, render_template
 import json
 import statistics
 import httpx
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
 API_URL = "https://pokeapi.co/api/v2/berry/?offset=0&limit=80"
 BERRIE_NAMES_CACHE = {}
 GROWTH_TIMES_CACHE = {}
-CACHE_TIME_EXPIRATION = timedelta(minutes=2)
+CACHE_TIME_EXPIRATION = timedelta(minutes=200)
 http_client = httpx.Client()
 
 
@@ -72,7 +73,7 @@ def get_frequency_growth_time(growth_times):
 
 
 @app.route("/", methods=['GET'])
-def get_berries():
+def get_berries_stats():
     """Returns json response to endpoint request of berries statistics"""
     berry_names = get_berries_names()
     all_growth_times = get_all_growth_times(berry_names)
@@ -92,8 +93,31 @@ def get_berries():
               "frequency_growth_time": frequency_growth_time
               }
     json_data = json.dumps(result)
-    return json_data
 
+    # Set the content-type header to "application/json"
+    response = make_response(json_data)
+    response.headers['Content-Type'] = 'application/json'
+
+    return response
+
+@app.route("/histogram", methods=['GET'])
+def create_histogram():
+    berry_names = get_berries_names()
+    all_growth_times = get_all_growth_times(berry_names)
+    data = all_growth_times
+
+    # Create a histogram of the growth times
+    plt.hist(data, bins=range(min(data), max(data) + 2, 1), align='left', edgecolor='black')
+    plt.xticks(range(min(data), max(data) + 1))
+    plt.xlabel('Growth Time (hours)')
+    plt.ylabel('Frequency')
+    plt.title('Growth Time Histogram')
+
+
+    plt.savefig('static/growth_time_histogram.png')
+    return '<img src="/static/growth_time_histogram.png">'
+
+create_histogram()
 
 if __name__ == "__main__":
     app.run(debug=True)
