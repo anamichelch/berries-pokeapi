@@ -1,9 +1,12 @@
-from flask import Flask, make_response, render_template
+from flask import Flask, make_response
 import json
 import statistics
 import httpx
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
+import matplotlib
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 app = Flask(__name__)
@@ -11,13 +14,13 @@ app = Flask(__name__)
 API_URL = "https://pokeapi.co/api/v2/berry/?offset=0&limit=80"
 BERRIE_NAMES_CACHE = {}
 GROWTH_TIMES_CACHE = {}
-CACHE_TIME_EXPIRATION = timedelta(minutes=200)
-http_client = httpx.Client()
+CACHE_TIME_EXPIRATION = timedelta(minutes=2)
 
 
 def get_berries_names():
     """Retrieve names of all berries from API, and returns a list"""
     timestamp = datetime.utcnow()
+    http_client = httpx.Client(timeout=httpx.Timeout(30.0))
 
     if BERRIE_NAMES_CACHE and BERRIE_NAMES_CACHE["timestamp"] - datetime.utcnow() <= CACHE_TIME_EXPIRATION:
         return BERRIE_NAMES_CACHE["data"]
@@ -37,12 +40,12 @@ def get_berries_names():
 def get_growth_time(name):
     """Retrieve growth time for specific name berrie from API"""
     timestamp = datetime.utcnow()
+    http_client = httpx.Client(timeout=httpx.Timeout(30.0))
 
     if name in GROWTH_TIMES_CACHE:
         grow_time, timestamp = GROWTH_TIMES_CACHE[name]
         if datetime.utcnow() - timestamp <= CACHE_TIME_EXPIRATION:
             return grow_time
-
     url = f"https://pokeapi.co/api/v2/berry/{name}/"
     response = http_client.get(url)
     response.raise_for_status()
@@ -72,7 +75,7 @@ def get_frequency_growth_time(growth_times):
     return freq
 
 
-@app.route("/allBerryStats", methods=['GET'])
+@app.route("/", methods=['GET'])
 def get_berries_stats():
     """Returns json response to endpoint request of berries statistics"""
     berry_names = get_berries_names()
@@ -101,8 +104,9 @@ def get_berries_stats():
     return response
 
 
-@app.route("/histogram", methods=['GET'])
 def create_histogram():
+    """ Returns a Histogram image in html , of the berries growth frequencies"""
+
     berry_names = get_berries_names()
     all_growth_times = get_all_growth_times(berry_names)
     data = all_growth_times
@@ -115,6 +119,11 @@ def create_histogram():
     plt.title('Growth Time Histogram')
 
     plt.savefig('static/growth_time_histogram.png')
+
+
+@app.route("/histo", methods=['GET'])
+def show_histogram():
+    create_histogram()
     return '<img src="/static/growth_time_histogram.png">'
 
 
