@@ -72,7 +72,7 @@ def get_frequency_growth_time(growth_times):
     return freq
 
 
-@app.route("/", methods=['GET'])
+@app.route("/allBerryStats", methods=['GET'])
 def get_berries_stats():
     """Returns json response to endpoint request of berries statistics"""
     berry_names = get_berries_names()
@@ -100,6 +100,7 @@ def get_berries_stats():
 
     return response
 
+
 @app.route("/histogram", methods=['GET'])
 def create_histogram():
     berry_names = get_berries_names()
@@ -113,11 +114,9 @@ def create_histogram():
     plt.ylabel('Frequency')
     plt.title('Growth Time Histogram')
 
-
     plt.savefig('static/growth_time_histogram.png')
     return '<img src="/static/growth_time_histogram.png">'
 
-create_histogram()
 
 if __name__ == "__main__":
     app.run(debug=True)
