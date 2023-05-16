@@ -1,66 +1,72 @@
-# Flask API for Berry Statistics
+# Berries API Documentation
 
-This Flask API provides statistics and a histogram for berry growth times using data from the PokeAPI.
-## Prerequisites
-You can find the in the file requirements.txt
-- Python 3.11
-- Flask 
-- httpx 
-- matplotlib 
+This is a simple API that provides information about berries. The data is fetched from the external [PokeAPI](https://pokeapi.co/). It provides the following endpoints:
+
+## `GET /allBerryStats`
+
+This endpoint provides various statistics about the growth times of all berries. 
+
+### Response
+
+A JSON object containing:
+- `berries_names`: A list of all berries names
+- `min_growth_time`: The minimum growth time among all berries
+- `median_growth_time`: The median growth time among all berries
+- `max_growth_time`: The maximum growth time among all berries
+- `variance_growth_time`: The variance of growth times among all berries
+- `mean_growth_time`: The mean growth time among all berries
+- `frequency_growth_time`: A frequency distribution of the growth times
+
+The `allBerryStats` endpoint responds with JSON data. The `Content-Type` header is set to `application/json`.
+
+### Example
+
+```bash
+GET https://berry-api.onrender.com/allBerryStats
+```
+## `GET /histogram`
+This endpoint provides an image of a histogram of the berries' growth times.
+
+### Response
+
+An HTML image tag that references a PNG image of the histogram.
 
 
-## Usage
+### Example
+`<img src="/static/growth_time_histogram.png">`
 
-To use the Berries API, you can make HTTP GET requests to the following endpoints:
 
-- `/allBerryStats`: Retrieves statistics about berries.
+![Berry Growth Time Histogram](static/growth_time_histogram.png)
 
-- `/histogram`: Displays a histogram of berry growth frequencies.
+```bash
+GET https://berry-api.onrender.com/histogram
+```
 
-## Request Headers
+# Deployment
 
-Make sure to include the following headers in your requests:
+The API is deployed on Render and can be accessed at the following URL:
 
-- `Content-Type: application/json`: This header specifies that the request and response content is in JSON format.
+```plaintext
+https://berry-api.onrender.com
+```
 
-## Example Usage
+# Local Developement
+To run this API locally, you will need Python 3.6 or higher and Flask. Clone the repository and install the required dependencies:
 
-### Retrieve statistics about berries
+```bash
+git clone https://github.com/anamichelch/berries-pokeapi.git
+```
+Then, navigate into the directory and install the required dependencies:
+```bash
+cd berries-pokeapi
+pip install -r requirements.txt
+```
+Then, to start the server, run:
+```bash
+python app.py
+```
 
-**Endpoint**: `/allBerryStats`
+The server will start on http://0.0.0.0:5000/.
+# Caching
+This API uses caching to reduce the number of requests to the external API and to speed up responses. The cache lasts for 2 minutes.
 
-**Method**: GET
-
-**Response Format**: JSON
-
-**Example Request**:
-
-`http
-GET /allBerryStats HTTP/1.1
-Content-Type: application/json`
-Host: <your-api-host>```
-
-**Example Request**:
-{
-  "berries_names": ["berry1", "berry2", ...],
-  "min_growth_time": 2,
-  "median_growth_time": 4,
-  "max_growth_time": 8,
-  "variance_growth_time": 6,
-  "mean_growth_time": 4.5,
-  "frequency_growth_time": {
-    "2": 3,
-    "4": 5,
-    "6": 2,
-    "8": 1
-  }
-}
-
-### View the berry growth time histogram
-Endpoint: /histogram
-
-Method: GET
-
-Response Format: HTML with an embedded image
-
-Example Request:
