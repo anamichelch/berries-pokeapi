@@ -70,3 +70,9 @@ The server will start on http://0.0.0.0:5000/.
 # Caching
 This API uses caching to reduce the number of requests to the external API and to speed up responses. The cache lasts for 2 minutes.
 
+# Note on Response Times
+
+When the server on Render.com is not in active use, it may enter a "sleep mode" to conserve resources. As a result, the first request after a period of inactivity may take longer to receive a response as the server needs to "wake up".
+
+Once the server is active again, subsequent requests will be processed faster. This is normal behavior and should be taken into account when using the API.
+
