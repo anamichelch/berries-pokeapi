@@ -1,3 +1,5 @@
-Flask
-httpx
-matplotlib
+Flask~=2.3.2
+httpx~=0.24.0
+matplotlib~=3.7.1
+statistics~=1.0.3.5
+requests~=2.30.0
