@@ -1,4 +1,4 @@
-from flask import Flask, make_response
+from flask import Flask, make_response, render_template
 import json
 import statistics
 import httpx
@@ -87,7 +87,7 @@ def get_frequency_growth_time(growth_times):
 
 @app.route("/")
 def welcome():
-    return "<h1>Hello</h1>"
+    return render_template("welcome.html")
 
 
 @app.route("/allBerryStats", methods=['GET'])

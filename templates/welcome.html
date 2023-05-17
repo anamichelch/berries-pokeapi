@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Berries API Documentation</title>
+</head>
+<body>
+    <h1>Berries API Documentation</h1>
+    <p>This is a simple API that provides information about berries. The data is fetched from the external <a href="https://pokeapi.co/">PokeAPI</a>. It provides the following endpoints:</p>
+
+    <h2>GET /allBerryStats</h2>
+    <p>This endpoint provides various statistics about the growth times of all berries.</p>
+
+    <h3>Response</h3>
+    <p>A JSON object containing:</p>
+    <ul>
+        <li><code>berries_names</code>: A list of all berries names</li>
+        <li><code>min_growth_time</code>: The minimum growth time among all berries</li>
+        <li><code>median_growth_time</code>: The median growth time among all berries</li>
+        <li><code>max_growth_time</code>: The maximum growth time among all berries</li>
+        <li><code>variance_growth_time</code>: The variance of growth times among all berries</li>
+        <li><code>mean_growth_time</code>: The mean growth time among all berries</li>
+        <li><code>frequency_growth_time</code>: A frequency distribution of the growth times</li>
+    </ul>
+    <p>The <code>allBerryStats</code> endpoint responds with JSON data. The <code>Content-Type</code> header is set to <code>application/json</code>.</p>
+
+    <h3>Example</h3>
+    <pre><code>GET https://berry-api.onrender.com/allBerryStats</code></pre>
+
+    <h2>GET /histogram</h2>
+    <p>This endpoint provides an image of a histogram of the berries' growth times.</p>
+
+    <h3>Response</h3>
+    <p>An HTML image tag that references a PNG image of the histogram.</p>
+
+    <h3>Example</h3>
+    <code>&lt;img src="/static/growth_time_histogram.png"&gt;</code>
+    <p><img src="static/growth_time_histogram.png" alt="Berry Growth Time Histogram"></p>
+    <pre><code>GET https://berry-api.onrender.com/histogram</code></pre>
+
+    <h1>Deployment</h1>
+    <p>The API is deployed on Render and can be accessed at the following URL:</p>
+    <pre><code>https://berry-api.onrender.com</code></pre>
+
+    <h1>Local Development</h1>
+    <p>To run this API locally, you will need Python 3.6 or higher and Flask. Clone the repository and install the required dependencies:</p>
+    <pre><code>git clone https://github.com/anamichelch/berries-pokeapi.git</code></pre>
+    <p>Then, navigate into the directory and install the required dependencies:</p>
+    <pre><code>cd berries-pokeapi
+pip install -r requirements.txt</code></pre>
+    <p>Then, to start the server, run:</p>
+    <pre><code>python app.py</code></pre>
+    <p>The server will start on <code>http://0.0.0.0:5000/</code>.</p>
+
+        <h1>Caching</h1>
+    <p>This API uses caching to reduce the number of requests to the external API and to speed up responses. The cache lasts for 2 minutes.</p>
+
+    <h1>Note on Response Times</h1>
+    <p>When the server on Render.com is not in active use, it may enter a "sleep mode" to conserve resources. As a result, the first request after a period of inactivity may take longer to receive a response as the server needs to "wake up".</p>
+    <p>Once the server is active again, subsequent requests will be processed faster. This is normal behavior and should be taken into account when using the API.</p>
+</body>
+</html>
+
