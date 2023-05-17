@@ -5,6 +5,7 @@ import httpx
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 import matplotlib
+import time
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -14,7 +15,10 @@ app = Flask(__name__)
 API_URL = "https://pokeapi.co/api/v2/berry/?offset=0&limit=80"
 BERRIE_NAMES_CACHE = {}
 GROWTH_TIMES_CACHE = {}
-CACHE_TIME_EXPIRATION = timedelta(minutes=2)
+CACHE_TIME_EXPIRATION = timedelta(minutes=200)
+USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 " \
+             "Safari/537.36"
+headers = {'user-agent': USER_AGENT}
 
 
 def get_berries_names():
@@ -25,15 +29,20 @@ def get_berries_names():
     if BERRIE_NAMES_CACHE and BERRIE_NAMES_CACHE["timestamp"] - datetime.utcnow() <= CACHE_TIME_EXPIRATION:
         return BERRIE_NAMES_CACHE["data"]
 
-    response = http_client.get(API_URL)
-    response.raise_for_status()
+    try:
+        response = http_client.get(API_URL, headers=headers)
+        response.raise_for_status()
+
+    except httpx.HTTPStatusError as e:
+        print(f"Error occurred: {e}")
+        print(f"Response content: {response.content}")
 
     data = response.json()
     results = data["results"]
     berries_names = [result["name"] for result in results]
     BERRIE_NAMES_CACHE["data"] = berries_names
     BERRIE_NAMES_CACHE["timestamp"] = timestamp
-
+    print(berries_names)
     return berries_names
 
 
@@ -46,13 +55,14 @@ def get_growth_time(name):
         grow_time, timestamp = GROWTH_TIMES_CACHE[name]
         if datetime.utcnow() - timestamp <= CACHE_TIME_EXPIRATION:
             return grow_time
-    url = f"https://pokeapi.co/api/v2/berry/{name}/"
-    response = http_client.get(url)
+    url = f"https://pokeapi.co/api/v2/berry/{name}"
+    response = http_client.get(url, headers=headers)
     response.raise_for_status()
 
     data = response.json()
     growth_time = data["growth_time"]
     GROWTH_TIMES_CACHE[name] = (growth_time, timestamp)
+    time.sleep(1)
 
     return growth_time
 
@@ -73,6 +83,11 @@ def get_frequency_growth_time(growth_times):
         else:
             freq[time] = 1
     return freq
+
+
+@app.route("/")
+def welcome():
+    return "<h1>Hello</h1>"
 
 
 @app.route("/allBerryStats", methods=['GET'])
@@ -128,4 +143,4 @@ def show_histogram():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(debug=True, port=5001)
