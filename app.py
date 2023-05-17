@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 import matplotlib
 import time
+import requests
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -24,40 +25,33 @@ headers = {'user-agent': USER_AGENT}
 def get_berries_names():
     """Retrieve names of all berries from API, and returns a list"""
     timestamp = datetime.utcnow()
-    http_client = httpx.Client(timeout=httpx.Timeout(30.0))
 
     if BERRIE_NAMES_CACHE and BERRIE_NAMES_CACHE["timestamp"] - datetime.utcnow() <= CACHE_TIME_EXPIRATION:
         return BERRIE_NAMES_CACHE["data"]
 
-    try:
-        response = http_client.get(API_URL, headers=headers)
-        response.raise_for_status()
-
-    except httpx.HTTPStatusError as e:
-        print(f"Error occurred: {e}")
-        print(f"Response content: {response.content}")
+    response = requests.get(API_URL, headers)
+    response.raise_for_status()
 
     data = response.json()
     results = data["results"]
     berries_names = [result["name"] for result in results]
     BERRIE_NAMES_CACHE["data"] = berries_names
     BERRIE_NAMES_CACHE["timestamp"] = timestamp
-    print(berries_names)
+
     return berries_names
 
 
 def get_growth_time(name):
     """Retrieve growth time for specific name berrie from API"""
     timestamp = datetime.utcnow()
-    http_client = httpx.Client(timeout=httpx.Timeout(30.0))
 
     if name in GROWTH_TIMES_CACHE:
         grow_time, timestamp = GROWTH_TIMES_CACHE[name]
         if datetime.utcnow() - timestamp <= CACHE_TIME_EXPIRATION:
             return grow_time
     url = f"https://pokeapi.co/api/v2/berry/{name}"
-    response = http_client.get(url, headers=headers)
-    response.raise_for_status()
+
+    response = requests.get(url)
 
     data = response.json()
     growth_time = data["growth_time"]
